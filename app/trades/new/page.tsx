@@ -34,6 +34,11 @@ export default function NewTradePage() {
     notes: '',
     status: 'open' as TradeStatus,
     selectedTags: [] as string[],
+    // Asset-specific fields
+    tickValue: '',
+    tickSize: '',
+    multiplier: '100',
+    pipValue: '',
   });
 
   const handleSubmit = (e: FormEvent) => {
@@ -64,6 +69,11 @@ export default function NewTradePage() {
       notes: formData.notes || undefined,
       status: formData.status,
       tags: formData.selectedTags,
+      // Asset-specific fields
+      tickValue: formData.tickValue ? parseFloat(formData.tickValue) : undefined,
+      tickSize: formData.tickSize ? parseFloat(formData.tickSize) : undefined,
+      multiplier: formData.multiplier ? parseFloat(formData.multiplier) : undefined,
+      pipValue: formData.pipValue ? parseFloat(formData.pipValue) : undefined,
     });
 
     router.push('/trades');
@@ -210,6 +220,49 @@ export default function NewTradePage() {
               onChange={(e) => setFormData({ ...formData, fees: e.target.value })}
               placeholder="0.00"
             />
+
+            {/* Asset-specific fields */}
+            {formData.assetType === 'future' && (
+              <>
+                <Input
+                  label="Tick Value ($) *"
+                  type="number"
+                  step="0.01"
+                  value={formData.tickValue}
+                  onChange={(e) => setFormData({ ...formData, tickValue: e.target.value })}
+                  placeholder="12.50 (ES: $12.50 per tick)"
+                />
+                <Input
+                  label="Tick Size *"
+                  type="number"
+                  step="0.001"
+                  value={formData.tickSize}
+                  onChange={(e) => setFormData({ ...formData, tickSize: e.target.value })}
+                  placeholder="0.25 (ES: 0.25 points)"
+                />
+              </>
+            )}
+
+            {formData.assetType === 'option' && (
+              <Input
+                label="Contract Multiplier"
+                type="number"
+                value={formData.multiplier}
+                onChange={(e) => setFormData({ ...formData, multiplier: e.target.value })}
+                placeholder="100 (standard)"
+              />
+            )}
+
+            {formData.assetType === 'forex' && (
+              <Input
+                label="Pip Value ($)"
+                type="number"
+                step="0.01"
+                value={formData.pipValue}
+                onChange={(e) => setFormData({ ...formData, pipValue: e.target.value })}
+                placeholder="10 (standard lot)"
+              />
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
