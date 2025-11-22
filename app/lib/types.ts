@@ -26,6 +26,11 @@ export interface Trade {
   status: TradeStatus;
   createdAt: string;
   updatedAt: string;
+  // Asset-specific fields
+  tickValue?: number; // For futures: dollar value per tick (e.g., $12.50 for ES)
+  tickSize?: number; // For futures: minimum price movement (e.g., 0.25 for ES)
+  multiplier?: number; // For options: contract multiplier (usually 100)
+  pipValue?: number; // For forex: value per pip
 }
 
 export interface TradeSetup {

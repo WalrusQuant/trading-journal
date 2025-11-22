@@ -1,18 +1,57 @@
-import { Trade, PerformanceMetrics, DailyPnL } from './types';
+import { Trade, PerformanceMetrics, DailyPnL, AssetType } from './types';
 
 export function calculateTradePnL(
   entryPrice: number,
   exitPrice: number,
   quantity: number,
   direction: 'long' | 'short',
-  fees: number = 0
+  fees: number = 0,
+  assetType?: AssetType,
+  tickValue?: number,
+  tickSize?: number,
+  multiplier?: number,
+  pipValue?: number
 ): number {
   let pnl: number;
+  const priceDiff = direction === 'long'
+    ? (exitPrice - entryPrice)
+    : (entryPrice - exitPrice);
 
-  if (direction === 'long') {
-    pnl = (exitPrice - entryPrice) * quantity - fees;
-  } else {
-    pnl = (entryPrice - exitPrice) * quantity - fees;
+  // Calculate P&L based on asset type
+  switch (assetType) {
+    case 'future':
+      // Futures: (price difference in ticks) * tick value * contracts
+      if (tickValue && tickSize) {
+        const ticks = priceDiff / tickSize;
+        pnl = ticks * tickValue * quantity - fees;
+      } else {
+        // Fallback if tick values not provided
+        pnl = priceDiff * quantity - fees;
+      }
+      break;
+
+    case 'option':
+      // Options: price difference * contracts * multiplier (usually 100)
+      const optionMultiplier = multiplier || 100;
+      pnl = priceDiff * quantity * optionMultiplier - fees;
+      break;
+
+    case 'forex':
+      // Forex: price difference * lot size * pip value
+      if (pipValue) {
+        // Assuming standard forex calculation
+        pnl = (priceDiff * 10000) * quantity * pipValue - fees; // 10000 for pips calculation
+      } else {
+        pnl = priceDiff * quantity - fees;
+      }
+      break;
+
+    case 'stock':
+    case 'crypto':
+    default:
+      // Stock/Crypto: simple price difference * quantity
+      pnl = priceDiff * quantity - fees;
+      break;
   }
 
   return pnl;

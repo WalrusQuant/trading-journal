@@ -42,7 +42,12 @@ export function TradeProvider({ children }: { children: ReactNode }) {
         trade.exitPrice,
         trade.quantity,
         trade.direction,
-        trade.fees
+        trade.fees,
+        trade.assetType,
+        trade.tickValue,
+        trade.tickSize,
+        trade.multiplier,
+        trade.pipValue
       );
       trade.pnlPercentage = calculatePnLPercentage(
         trade.entryPrice,
@@ -65,7 +70,12 @@ export function TradeProvider({ children }: { children: ReactNode }) {
           updates.exitPrice,
           updates.quantity ?? trade.quantity,
           updates.direction ?? trade.direction,
-          updates.fees ?? trade.fees
+          updates.fees ?? trade.fees,
+          updates.assetType ?? trade.assetType,
+          updates.tickValue ?? trade.tickValue,
+          updates.tickSize ?? trade.tickSize,
+          updates.multiplier ?? trade.multiplier,
+          updates.pipValue ?? trade.pipValue
         );
         updates.pnlPercentage = calculatePnLPercentage(
           updates.entryPrice ?? trade.entryPrice,

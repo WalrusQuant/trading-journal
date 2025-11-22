@@ -117,7 +117,8 @@ export default function SetupsPage() {
                 {portfolioSetups.map((setup) => (
                   <tr
                     key={setup.id}
-                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+                    onClick={() => (window.location.href = `/setups/${setup.id}`)}
                   >
                     <td className="py-3 px-4 text-sm font-medium text-primary-600 dark:text-primary-400">
                       {setup.ticker}
