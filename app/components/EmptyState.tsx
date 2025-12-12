@@ -10,17 +10,17 @@ interface EmptyStateProps {
 
 export default function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="text-center py-12">
+    <div className="text-center py-12 px-4">
       {Icon && (
         <div className="flex justify-center mb-4">
-          <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full">
-            <Icon className="w-12 h-12 text-gray-400 dark:text-gray-600" />
+          <div className="p-4 bg-terminal-panel border border-terminal-border">
+            <Icon className="w-10 h-10 text-gray-600" />
           </div>
         </div>
       )}
-      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{title}</h3>
+      <h3 className="text-sm font-mono font-medium text-gray-300 uppercase tracking-wider mb-2">{title}</h3>
       {description && (
-        <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">{description}</p>
+        <p className="text-sm font-mono text-gray-500 mb-6 max-w-md mx-auto">{description}</p>
       )}
       {action && <div>{action}</div>}
     </div>

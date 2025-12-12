@@ -13,7 +13,7 @@ import Select from '../components/Select';
 import Input from '../components/Input';
 import EmptyState from '../components/EmptyState';
 import Link from 'next/link';
-import { Plus, Download, TrendingUp, Search } from 'lucide-react';
+import { Plus, Download, TrendingUp, Search, Filter } from 'lucide-react';
 import { FilterOptions, AssetType, TradeStatus, TradeDirection } from '../lib/types';
 
 export default function TradesPage() {
@@ -45,12 +45,19 @@ export default function TradesPage() {
   if (!activePortfolio) {
     return (
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">Trades</h1>
-        <EmptyState
-          icon={TrendingUp}
-          title="No Portfolio Found"
-          description="Create a portfolio to start tracking your trades"
-        />
+        <div className="flex items-center gap-3 mb-8">
+          <TrendingUp className="w-6 h-6 text-bloomberg-500" />
+          <h1 className="text-xl font-mono font-bold text-bloomberg-500 uppercase tracking-wider">
+            Trades
+          </h1>
+        </div>
+        <Card>
+          <EmptyState
+            icon={TrendingUp}
+            title="No Portfolio Found"
+            description="Create a portfolio to start tracking your trades"
+          />
+        </Card>
       </div>
     );
   }
@@ -58,20 +65,24 @@ export default function TradesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-0">
-          Trades
-        </h1>
-        <div className="flex space-x-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div className="flex items-center gap-3 mb-4 sm:mb-0">
+          <TrendingUp className="w-6 h-6 text-bloomberg-500" />
+          <h1 className="text-xl font-mono font-bold text-bloomberg-500 uppercase tracking-wider">
+            Trades
+          </h1>
+          <span className="text-xs font-mono text-gray-500">({portfolioTrades.length})</span>
+        </div>
+        <div className="flex space-x-2">
           {filteredTrades.length > 0 && (
-            <Button variant="secondary" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2 inline" />
-              Export CSV
+            <Button variant="secondary" size="sm" onClick={handleExport}>
+              <Download className="w-3.5 h-3.5 mr-1.5 inline" />
+              Export
             </Button>
           )}
           <Link href="/trades/new">
-            <Button>
-              <Plus className="w-4 h-4 mr-2 inline" />
+            <Button variant="success" size="sm">
+              <Plus className="w-3.5 h-3.5 mr-1.5 inline" />
               New Trade
             </Button>
           </Link>
@@ -79,218 +90,203 @@ export default function TradesPage() {
       </div>
 
       {/* Filters */}
-      <Card className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search ticker or notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+      <Card padding={false} className="mb-4">
+        <div className="panel-header">
+          <div className="flex items-center gap-2">
+            <Filter className="w-3.5 h-3.5 text-gray-500" />
+            <span className="panel-title">Filters</span>
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Input
+                type="text"
+                placeholder="Search ticker..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+
+            <Select
+              options={[
+                { value: 'all', label: 'All Types' },
+                { value: 'stock', label: 'Stock' },
+                { value: 'option', label: 'Option' },
+                { value: 'future', label: 'Future' },
+                { value: 'crypto', label: 'Crypto' },
+                { value: 'forex', label: 'Forex' },
+              ]}
+              value={filters.assetType || 'all'}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  assetType: e.target.value === 'all' ? undefined : (e.target.value as AssetType),
+                })
+              }
+            />
+
+            <Select
+              options={[
+                { value: 'all', label: 'All Status' },
+                { value: 'open', label: 'Open' },
+                { value: 'closed', label: 'Closed' },
+              ]}
+              value={filters.status || 'all'}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  status: e.target.value === 'all' ? undefined : (e.target.value as TradeStatus),
+                })
+              }
+            />
+
+            <Select
+              options={[
+                { value: 'all', label: 'All Directions' },
+                { value: 'long', label: 'Long' },
+                { value: 'short', label: 'Short' },
+              ]}
+              value={filters.direction || 'all'}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  direction: e.target.value === 'all' ? undefined : (e.target.value as TradeDirection),
+                })
+              }
             />
           </div>
 
-          <Select
-            options={[
-              { value: 'all', label: 'All Asset Types' },
-              { value: 'stock', label: 'Stock' },
-              { value: 'option', label: 'Option' },
-              { value: 'future', label: 'Future' },
-              { value: 'crypto', label: 'Crypto' },
-              { value: 'forex', label: 'Forex' },
-            ]}
-            value={filters.assetType || 'all'}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                assetType: e.target.value === 'all' ? undefined : (e.target.value as AssetType),
-              })
-            }
-          />
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Select
+              options={[
+                { value: 'date', label: 'Sort: Date' },
+                { value: 'ticker', label: 'Sort: Ticker' },
+                { value: 'pnl', label: 'Sort: P&L' },
+                { value: 'pnlPercent', label: 'Sort: P&L %' },
+              ]}
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="w-auto"
+            />
 
-          <Select
-            options={[
-              { value: 'all', label: 'All Status' },
-              { value: 'open', label: 'Open' },
-              { value: 'closed', label: 'Closed' },
-            ]}
-            value={filters.status || 'all'}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                status: e.target.value === 'all' ? undefined : (e.target.value as TradeStatus),
-              })
-            }
-          />
-
-          <Select
-            options={[
-              { value: 'all', label: 'All Directions' },
-              { value: 'long', label: 'Long' },
-              { value: 'short', label: 'Short' },
-            ]}
-            value={filters.direction || 'all'}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                direction: e.target.value === 'all' ? undefined : (e.target.value as TradeDirection),
-              })
-            }
-          />
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Select
-            options={[
-              { value: 'date', label: 'Sort by Date' },
-              { value: 'ticker', label: 'Sort by Ticker' },
-              { value: 'pnl', label: 'Sort by P&L' },
-              { value: 'pnlPercent', label: 'Sort by P&L %' },
-            ]}
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="w-auto"
-          />
-
-          <Select
-            options={[
-              { value: 'desc', label: 'Descending' },
-              { value: 'asc', label: 'Ascending' },
-            ]}
-            value={sortDirection}
-            onChange={(e) => setSortDirection(e.target.value as 'asc' | 'desc')}
-            className="w-auto"
-          />
+            <Select
+              options={[
+                { value: 'desc', label: 'DESC' },
+                { value: 'asc', label: 'ASC' },
+              ]}
+              value={sortDirection}
+              onChange={(e) => setSortDirection(e.target.value as 'asc' | 'desc')}
+              className="w-auto"
+            />
+          </div>
         </div>
       </Card>
 
       {/* Results */}
       <Card padding={false}>
+        <div className="panel-header">
+          <span className="panel-title">Trade History</span>
+          <span className="text-xs font-mono text-gray-500">{filteredTrades.length} results</span>
+        </div>
+
         {filteredTrades.length === 0 ? (
-          <div className="p-6">
-            <EmptyState
-              icon={TrendingUp}
-              title={portfolioTrades.length === 0 ? 'No Trades Yet' : 'No Trades Found'}
-              description={
-                portfolioTrades.length === 0
-                  ? 'Start by adding your first trade'
-                  : 'Try adjusting your filters'
-              }
-              action={
-                portfolioTrades.length === 0 ? (
-                  <Link href="/trades/new">
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2 inline" />
-                      Add Your First Trade
-                    </Button>
-                  </Link>
-                ) : undefined
-              }
-            />
-          </div>
+          <EmptyState
+            icon={TrendingUp}
+            title={portfolioTrades.length === 0 ? 'No Trades Yet' : 'No Trades Found'}
+            description={
+              portfolioTrades.length === 0
+                ? 'Start by adding your first trade'
+                : 'Try adjusting your filters'
+            }
+            action={
+              portfolioTrades.length === 0 ? (
+                <Link href="/trades/new">
+                  <Button variant="success">
+                    <Plus className="w-3.5 h-3.5 mr-1.5 inline" />
+                    Add First Trade
+                  </Button>
+                </Link>
+              ) : undefined
+            }
+          />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="terminal-table">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Date
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Ticker
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Type
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Direction
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Entry
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Exit
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Qty
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    P&L
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    P&L %
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Status
-                  </th>
+                <tr>
+                  <th>Date</th>
+                  <th>Ticker</th>
+                  <th>Type</th>
+                  <th>Direction</th>
+                  <th className="text-right">Entry</th>
+                  <th className="text-right">Exit</th>
+                  <th className="text-right">Qty</th>
+                  <th className="text-right">P&L</th>
+                  <th className="text-right">P&L %</th>
+                  <th className="text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredTrades.map((trade) => (
                   <tr
                     key={trade.id}
-                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+                    className="cursor-pointer"
                     onClick={() => (window.location.href = `/trades/${trade.id}`)}
                   >
-                    <td className="py-3 px-4 text-sm text-gray-900 dark:text-gray-100">
+                    <td className="text-gray-400">
                       {formatDate(trade.entryDate, settings.dateFormat)}
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
+                    <td>
+                      <span className="text-bloomberg-400 font-medium">
                         {trade.ticker}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400 capitalize">
+                    <td className="text-gray-500 uppercase text-xs">
                       {trade.assetType}
                     </td>
-                    <td className="py-3 px-4 text-sm">
+                    <td>
                       {trade.direction === 'long' ? (
-                        <span className="text-profit-600 dark:text-profit-400 capitalize">
-                          Long
-                        </span>
+                        <span className="text-profit-400 uppercase text-xs">Long</span>
                       ) : (
-                        <span className="text-loss-600 dark:text-loss-400 capitalize">Short</span>
+                        <span className="text-loss-400 uppercase text-xs">Short</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-sm text-right text-gray-900 dark:text-gray-100">
+                    <td className="text-right text-gray-300">
                       ${trade.entryPrice.toFixed(2)}
                     </td>
-                    <td className="py-3 px-4 text-sm text-right text-gray-900 dark:text-gray-100">
+                    <td className="text-right text-gray-300">
                       {trade.exitPrice ? `$${trade.exitPrice.toFixed(2)}` : '-'}
                     </td>
-                    <td className="py-3 px-4 text-sm text-right text-gray-900 dark:text-gray-100">
+                    <td className="text-right text-gray-300">
                       {trade.quantity}
                     </td>
-                    <td
-                      className={`py-3 px-4 text-sm text-right font-medium ${
-                        trade.pnl !== undefined ? getPnLColor(trade.pnl) : 'text-gray-600'
-                      }`}
-                    >
+                    <td className={`text-right font-medium ${
+                      trade.pnl !== undefined
+                        ? (trade.pnl >= 0 ? 'text-profit-400' : 'text-loss-400')
+                        : 'text-gray-600'
+                    }`}>
                       {trade.pnl !== undefined
                         ? formatCurrency(trade.pnl, activePortfolio.currency, settings.hideAmounts)
                         : '-'}
                     </td>
-                    <td
-                      className={`py-3 px-4 text-sm text-right font-medium ${
-                        trade.pnlPercentage !== undefined
-                          ? getPnLColor(trade.pnlPercentage)
-                          : 'text-gray-600'
-                      }`}
-                    >
+                    <td className={`text-right font-medium ${
+                      trade.pnlPercentage !== undefined
+                        ? (trade.pnlPercentage >= 0 ? 'text-profit-400' : 'text-loss-400')
+                        : 'text-gray-600'
+                    }`}>
                       {trade.pnlPercentage !== undefined
                         ? formatPercentage(trade.pnlPercentage)
                         : '-'}
                     </td>
-                    <td className="py-3 px-4 text-center">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          trade.status === 'open'
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                        }`}
-                      >
+                    <td className="text-center">
+                      <span className={`inline-flex items-center px-2 py-0.5 text-xs font-mono uppercase border ${
+                        trade.status === 'open'
+                          ? 'bg-info-500/10 text-info-400 border-info-500/30'
+                          : 'bg-terminal-card text-gray-400 border-terminal-border'
+                      }`}>
                         {trade.status}
                       </span>
                     </td>
@@ -304,7 +300,7 @@ export default function TradesPage() {
 
       {/* Summary */}
       {filteredTrades.length > 0 && (
-        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-3 text-xs font-mono text-gray-500">
           Showing {filteredTrades.length} of {portfolioTrades.length} trades
         </div>
       )}

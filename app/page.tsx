@@ -10,7 +10,7 @@ import Card, { CardHeader, CardTitle } from './components/Card';
 import Button from './components/Button';
 import EmptyState from './components/EmptyState';
 import Link from 'next/link';
-import { TrendingUp, TrendingDown, DollarSign, Target, Plus, PieChart } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Target, Plus, PieChart, Activity, Clock, Zap } from 'lucide-react';
 import { useMemo } from 'react';
 
 export default function Dashboard() {
@@ -48,19 +48,24 @@ export default function Dashboard() {
   if (!activePortfolio) {
     return (
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
-          Dashboard
-        </h1>
-        <EmptyState
-          icon={PieChart}
-          title="No Portfolio Found"
-          description="Create a portfolio to start tracking your trades"
-          action={
-            <Link href="/portfolios">
-              <Button>Create Portfolio</Button>
-            </Link>
-          }
-        />
+        <div className="flex items-center gap-3 mb-8">
+          <Activity className="w-6 h-6 text-bloomberg-500" />
+          <h1 className="text-xl font-mono font-bold text-bloomberg-500 uppercase tracking-wider">
+            Dashboard
+          </h1>
+        </div>
+        <Card>
+          <EmptyState
+            icon={PieChart}
+            title="No Portfolio Found"
+            description="Create a portfolio to start tracking your trades"
+            action={
+              <Link href="/portfolios">
+                <Button>Create Portfolio</Button>
+              </Link>
+            }
+          />
+        </Card>
       </div>
     );
   }
@@ -68,20 +73,24 @@ export default function Dashboard() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-0">
-          Dashboard
-        </h1>
-        <div className="flex space-x-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div className="flex items-center gap-3 mb-4 sm:mb-0">
+          <Activity className="w-6 h-6 text-bloomberg-500" />
+          <h1 className="text-xl font-mono font-bold text-bloomberg-500 uppercase tracking-wider">
+            Dashboard
+          </h1>
+          <span className="status-live">Live</span>
+        </div>
+        <div className="flex space-x-2">
           <Link href="/setups/new">
-            <Button variant="secondary">
-              <Target className="w-4 h-4 mr-2 inline" />
+            <Button variant="secondary" size="sm">
+              <Target className="w-3.5 h-3.5 mr-1.5 inline" />
               New Setup
             </Button>
           </Link>
           <Link href="/trades/new">
-            <Button>
-              <Plus className="w-4 h-4 mr-2 inline" />
+            <Button variant="success" size="sm">
+              <Plus className="w-3.5 h-3.5 mr-1.5 inline" />
               New Trade
             </Button>
           </Link>
@@ -89,11 +98,12 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           title="Portfolio Value"
           value={formatCurrency(currentBalance, activePortfolio.currency, settings.hideAmounts)}
           icon={DollarSign}
+          highlight={metrics.totalPnL > 0 ? 'profit' : metrics.totalPnL < 0 ? 'loss' : 'neutral'}
           trend={
             metrics.totalPnL !== 0
               ? {
@@ -112,6 +122,7 @@ export default function Dashboard() {
           title="Win Rate"
           value={`${metrics.winRate.toFixed(1)}%`}
           icon={Target}
+          highlight={metrics.winRate >= 50 ? 'profit' : 'loss'}
           trend={{
             value: `${metrics.winningTrades}W / ${metrics.losingTrades}L`,
             isPositive: metrics.winRate >= 50,
@@ -121,6 +132,7 @@ export default function Dashboard() {
           title="Profit Factor"
           value={metrics.profitFactor === Infinity ? '∞' : metrics.profitFactor.toFixed(2)}
           icon={PieChart}
+          highlight={metrics.profitFactor > 1 ? 'profit' : 'loss'}
           trend={{
             value: formatCurrency(metrics.averageWin, activePortfolio.currency, settings.hideAmounts),
             isPositive: metrics.profitFactor > 1,
@@ -129,15 +141,16 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Trades */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Recent Trades</CardTitle>
-            <Link href="/trades">
-              <Button variant="ghost" size="sm">View All</Button>
-            </Link>
+      <Card padding={false}>
+        <div className="panel-header">
+          <div className="flex items-center gap-2">
+            <span className="panel-title">Recent Trades</span>
+            <span className="text-xs font-mono text-gray-600">({recentTrades.length})</span>
           </div>
-        </CardHeader>
+          <Link href="/trades">
+            <Button variant="ghost" size="sm">View All</Button>
+          </Link>
+        </div>
 
         {recentTrades.length === 0 ? (
           <EmptyState
@@ -146,79 +159,62 @@ export default function Dashboard() {
             description="Start by adding your first trade to begin tracking your performance"
             action={
               <Link href="/trades/new">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2 inline" />
-                  Add Your First Trade
+                <Button variant="success">
+                  <Plus className="w-3.5 h-3.5 mr-1.5 inline" />
+                  Add First Trade
                 </Button>
               </Link>
             }
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="terminal-table">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Date
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Ticker
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Type
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Direction
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    P&L
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    P&L %
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Status
-                  </th>
+                <tr>
+                  <th>Date</th>
+                  <th>Ticker</th>
+                  <th>Type</th>
+                  <th>Direction</th>
+                  <th className="text-right">P&L</th>
+                  <th className="text-right">P&L %</th>
+                  <th className="text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {recentTrades.map((trade) => (
-                  <tr
-                    key={trade.id}
-                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                  >
-                    <td className="py-3 px-4 text-sm text-gray-900 dark:text-gray-100">
+                  <tr key={trade.id}>
+                    <td className="text-gray-400">
                       {formatDate(trade.exitDate || trade.entryDate, settings.dateFormat)}
                     </td>
-                    <td className="py-3 px-4">
-                      <Link href={`/trades/${trade.id}`} className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline">
+                    <td>
+                      <Link href={`/trades/${trade.id}`} className="text-bloomberg-400 hover:text-bloomberg-300 transition-colors">
                         {trade.ticker}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400 capitalize">
+                    <td className="text-gray-500 uppercase text-xs">
                       {trade.assetType}
                     </td>
-                    <td className="py-3 px-4 text-sm">
+                    <td>
                       {trade.direction === 'long' ? (
-                        <span className="text-profit-600 dark:text-profit-400 capitalize">Long</span>
+                        <span className="text-profit-400 uppercase text-xs">Long</span>
                       ) : (
-                        <span className="text-loss-600 dark:text-loss-400 capitalize">Short</span>
+                        <span className="text-loss-400 uppercase text-xs">Short</span>
                       )}
                     </td>
-                    <td className={`py-3 px-4 text-sm text-right font-medium ${trade.pnl !== undefined ? getPnLColor(trade.pnl) : 'text-gray-600'}`}>
+                    <td className={`text-right font-medium ${trade.pnl !== undefined ? (trade.pnl >= 0 ? 'text-profit-400' : 'text-loss-400') : 'text-gray-600'}`}>
                       {trade.pnl !== undefined
                         ? formatCurrency(trade.pnl, activePortfolio.currency, settings.hideAmounts)
                         : '-'
                       }
                     </td>
-                    <td className={`py-3 px-4 text-sm text-right font-medium ${trade.pnlPercentage !== undefined ? getPnLColor(trade.pnlPercentage) : 'text-gray-600'}`}>
+                    <td className={`text-right font-medium ${trade.pnlPercentage !== undefined ? (trade.pnlPercentage >= 0 ? 'text-profit-400' : 'text-loss-400') : 'text-gray-600'}`}>
                       {trade.pnlPercentage !== undefined ? formatPercentage(trade.pnlPercentage) : '-'}
                     </td>
-                    <td className="py-3 px-4 text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <td className="text-center">
+                      <span className={`inline-flex items-center px-2 py-0.5 text-xs font-mono uppercase border ${
                         trade.status === 'open'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                          ? 'bg-info-500/10 text-info-400 border-info-500/30'
+                          : 'bg-terminal-card text-gray-400 border-terminal-border'
                       }`}>
                         {trade.status}
                       </span>
@@ -233,41 +229,44 @@ export default function Dashboard() {
 
       {/* Quick Stats */}
       {metrics.totalTrades > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Best Trade</p>
-                <p className={`text-2xl font-bold mt-2 ${getPnLColor(metrics.bestTrade)}`}>
-                  {formatCurrency(metrics.bestTrade, activePortfolio.currency, settings.hideAmounts)}
-                </p>
-              </div>
-              <TrendingUp className="w-10 h-10 text-profit-600 dark:text-profit-400" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <Card padding={false}>
+            <div className="panel-header">
+              <span className="panel-title">Best Trade</span>
+              <TrendingUp className="w-4 h-4 text-profit-500" />
             </div>
+            <div className="p-4">
+              <p className={`text-2xl font-mono font-bold ${metrics.bestTrade >= 0 ? 'text-profit-400' : 'text-loss-400'}`}>
+                {formatCurrency(metrics.bestTrade, activePortfolio.currency, settings.hideAmounts)}
+              </p>
+            </div>
+            <div className="h-0.5 bg-profit-500" />
           </Card>
 
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Worst Trade</p>
-                <p className={`text-2xl font-bold mt-2 ${getPnLColor(metrics.worstTrade)}`}>
-                  {formatCurrency(metrics.worstTrade, activePortfolio.currency, settings.hideAmounts)}
-                </p>
-              </div>
-              <TrendingDown className="w-10 h-10 text-loss-600 dark:text-loss-400" />
+          <Card padding={false}>
+            <div className="panel-header">
+              <span className="panel-title">Worst Trade</span>
+              <TrendingDown className="w-4 h-4 text-loss-500" />
             </div>
+            <div className="p-4">
+              <p className={`text-2xl font-mono font-bold ${metrics.worstTrade >= 0 ? 'text-profit-400' : 'text-loss-400'}`}>
+                {formatCurrency(metrics.worstTrade, activePortfolio.currency, settings.hideAmounts)}
+              </p>
+            </div>
+            <div className="h-0.5 bg-loss-500" />
           </Card>
 
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg Hold Time</p>
-                <p className="text-2xl font-bold mt-2 text-gray-900 dark:text-gray-100">
-                  {metrics.averageHoldTime.toFixed(1)} days
-                </p>
-              </div>
-              <Target className="w-10 h-10 text-primary-600 dark:text-primary-400" />
+          <Card padding={false}>
+            <div className="panel-header">
+              <span className="panel-title">Avg Hold Time</span>
+              <Clock className="w-4 h-4 text-bloomberg-500" />
             </div>
+            <div className="p-4">
+              <p className="text-2xl font-mono font-bold text-gray-100">
+                {metrics.averageHoldTime.toFixed(1)} <span className="text-sm text-gray-500">days</span>
+              </p>
+            </div>
+            <div className="h-0.5 bg-bloomberg-500/50" />
           </Card>
         </div>
       )}

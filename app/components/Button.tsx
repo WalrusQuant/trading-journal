@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes } from 'react';
 import { cn } from '../lib/utils';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -13,19 +13,50 @@ export default function Button({
   className,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = cn(
+    'font-mono font-medium tracking-wide uppercase transition-all duration-150',
+    'focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-terminal-bg',
+    'disabled:opacity-40 disabled:cursor-not-allowed',
+    'border'
+  );
 
   const variants = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
-    danger: 'bg-loss-600 text-white hover:bg-loss-700 focus:ring-loss-500',
-    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500 dark:text-gray-300 dark:hover:bg-gray-800',
+    primary: cn(
+      'bg-bloomberg-500/20 text-bloomberg-400 border-bloomberg-500/50',
+      'hover:bg-bloomberg-500/30 hover:border-bloomberg-500 hover:text-bloomberg-300',
+      'focus:ring-bloomberg-500/50',
+      'active:bg-bloomberg-500/40'
+    ),
+    secondary: cn(
+      'bg-terminal-card text-gray-300 border-terminal-border',
+      'hover:bg-terminal-hover hover:text-gray-100 hover:border-gray-500',
+      'focus:ring-gray-500/50',
+      'active:bg-gray-700/50'
+    ),
+    danger: cn(
+      'bg-loss-500/20 text-loss-400 border-loss-500/50',
+      'hover:bg-loss-500/30 hover:border-loss-500 hover:text-loss-300',
+      'focus:ring-loss-500/50',
+      'active:bg-loss-500/40'
+    ),
+    success: cn(
+      'bg-matrix-500/20 text-matrix-400 border-matrix-500/50',
+      'hover:bg-matrix-500/30 hover:border-matrix-500 hover:text-matrix-300',
+      'focus:ring-matrix-500/50',
+      'active:bg-matrix-500/40'
+    ),
+    ghost: cn(
+      'bg-transparent text-gray-400 border-transparent',
+      'hover:bg-terminal-hover hover:text-matrix-400',
+      'focus:ring-matrix-500/30',
+      'active:bg-terminal-card'
+    ),
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+    sm: 'px-2.5 py-1 text-xs',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-2.5 text-sm',
   };
 
   return (

@@ -22,6 +22,7 @@ import {
   DollarSign,
   Award,
   BarChart3,
+  Activity,
 } from 'lucide-react';
 
 export default function AnalyticsPage() {
@@ -43,12 +44,19 @@ export default function AnalyticsPage() {
   if (!activePortfolio || closedTrades.length === 0) {
     return (
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">Analytics</h1>
-        <EmptyState
-          icon={BarChart3}
-          title="No Data Available"
-          description="Close some trades to see analytics and performance metrics"
-        />
+        <div className="flex items-center gap-3 mb-8">
+          <BarChart3 className="w-6 h-6 text-bloomberg-500" />
+          <h1 className="text-xl font-mono font-bold text-bloomberg-500 uppercase tracking-wider">
+            Analytics
+          </h1>
+        </div>
+        <Card>
+          <EmptyState
+            icon={BarChart3}
+            title="No Data Available"
+            description="Close some trades to see analytics and performance metrics"
+          />
+        </Card>
       </div>
     );
   }
@@ -87,135 +95,131 @@ export default function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">Analytics</h1>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <BarChart3 className="w-6 h-6 text-bloomberg-500" />
+        <h1 className="text-xl font-mono font-bold text-bloomberg-500 uppercase tracking-wider">
+          Analytics
+        </h1>
+        <span className="status-live">Live</span>
+      </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           title="Total P&L"
           value={formatCurrency(metrics.totalPnL, activePortfolio.currency, settings.hideAmounts)}
           icon={DollarSign}
+          highlight={metrics.totalPnL >= 0 ? 'profit' : 'loss'}
         />
         <StatCard
           title="Win Rate"
           value={`${metrics.winRate.toFixed(1)}%`}
           icon={Target}
+          highlight={metrics.winRate >= 50 ? 'profit' : 'loss'}
         />
         <StatCard
           title="Profit Factor"
           value={metrics.profitFactor === Infinity ? '∞' : metrics.profitFactor.toFixed(2)}
           icon={Award}
+          highlight={metrics.profitFactor > 1 ? 'profit' : 'loss'}
         />
         <StatCard
           title="Avg Hold Time"
           value={`${metrics.averageHoldTime.toFixed(1)}d`}
-          icon={TrendingUp}
+          icon={Activity}
         />
       </div>
 
       {/* Detailed Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Win/Loss Breakdown</CardTitle>
-          </CardHeader>
-
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400">Winning Trades</span>
-              <span className="text-lg font-semibold text-profit-600 dark:text-profit-400">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <Card padding={false}>
+          <div className="panel-header">
+            <span className="panel-title">Win/Loss Breakdown</span>
+          </div>
+          <div className="p-4 space-y-3">
+            <div className="flex justify-between items-center py-2 border-b border-terminal-border/50">
+              <span className="text-sm font-mono text-gray-400">Winning Trades</span>
+              <span className="text-lg font-mono font-semibold text-profit-400">
                 {metrics.winningTrades}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400">Losing Trades</span>
-              <span className="text-lg font-semibold text-loss-600 dark:text-loss-400">
+            <div className="flex justify-between items-center py-2 border-b border-terminal-border/50">
+              <span className="text-sm font-mono text-gray-400">Losing Trades</span>
+              <span className="text-lg font-mono font-semibold text-loss-400">
                 {metrics.losingTrades}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400">Average Win</span>
-              <span className="text-lg font-semibold text-profit-600 dark:text-profit-400">
+            <div className="flex justify-between items-center py-2 border-b border-terminal-border/50">
+              <span className="text-sm font-mono text-gray-400">Average Win</span>
+              <span className="text-lg font-mono font-semibold text-profit-400">
                 {formatCurrency(metrics.averageWin, activePortfolio.currency, settings.hideAmounts)}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400">Average Loss</span>
-              <span className="text-lg font-semibold text-loss-600 dark:text-loss-400">
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm font-mono text-gray-400">Average Loss</span>
+              <span className="text-lg font-mono font-semibold text-loss-400">
                 {formatCurrency(metrics.averageLoss, activePortfolio.currency, settings.hideAmounts)}
               </span>
             </div>
           </div>
+          <div className="h-0.5 bg-gradient-to-r from-profit-500/50 to-loss-500/50" />
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Best & Worst</CardTitle>
-          </CardHeader>
-
-          <div className="space-y-4">
-            <div>
+        <Card padding={false}>
+          <div className="panel-header">
+            <span className="panel-title">Best & Worst</span>
+          </div>
+          <div className="p-4 space-y-4">
+            <div className="p-3 bg-terminal-panel border border-terminal-border">
               <div className="flex items-center mb-2">
-                <TrendingUp className="w-5 h-5 text-profit-600 dark:text-profit-400 mr-2" />
-                <span className="text-gray-600 dark:text-gray-400">Best Trade</span>
+                <TrendingUp className="w-4 h-4 text-profit-500 mr-2" />
+                <span className="text-xs font-mono text-gray-500 uppercase">Best Trade</span>
               </div>
-              <p className={`text-2xl font-bold ${getPnLColor(metrics.bestTrade)}`}>
+              <p className="text-2xl font-mono font-bold text-profit-400">
                 {formatCurrency(metrics.bestTrade, activePortfolio.currency, settings.hideAmounts)}
               </p>
             </div>
-            <div>
+            <div className="p-3 bg-terminal-panel border border-terminal-border">
               <div className="flex items-center mb-2">
-                <TrendingDown className="w-5 h-5 text-loss-600 dark:text-loss-400 mr-2" />
-                <span className="text-gray-600 dark:text-gray-400">Worst Trade</span>
+                <TrendingDown className="w-4 h-4 text-loss-500 mr-2" />
+                <span className="text-xs font-mono text-gray-500 uppercase">Worst Trade</span>
               </div>
-              <p className={`text-2xl font-bold ${getPnLColor(metrics.worstTrade)}`}>
+              <p className="text-2xl font-mono font-bold text-loss-400">
                 {formatCurrency(metrics.worstTrade, activePortfolio.currency, settings.hideAmounts)}
               </p>
             </div>
           </div>
+          <div className="h-0.5 bg-gradient-to-r from-profit-500/50 to-loss-500/50" />
         </Card>
       </div>
 
       {/* Asset Type Performance */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Performance by Asset Type</CardTitle>
-        </CardHeader>
+      <Card padding={false} className="mb-4">
+        <div className="panel-header">
+          <span className="panel-title">Performance by Asset Type</span>
+          <span className="text-xs font-mono text-gray-500">{assetTypePerformance.length} types</span>
+        </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="terminal-table">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Asset Type
-                </th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Trades
-                </th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Win Rate
-                </th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Total P&L
-                </th>
+              <tr>
+                <th>Asset Type</th>
+                <th className="text-right">Trades</th>
+                <th className="text-right">Win Rate</th>
+                <th className="text-right">Total P&L</th>
               </tr>
             </thead>
             <tbody>
               {assetTypePerformance.map((item) => (
-                <tr
-                  key={item.type}
-                  className="border-b border-gray-100 dark:border-gray-800"
-                >
-                  <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
-                    {item.type}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-right text-gray-900 dark:text-gray-100">
-                    {item.totalTrades}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-right text-gray-900 dark:text-gray-100">
+                <tr key={item.type}>
+                  <td className="text-bloomberg-400 font-medium uppercase">{item.type}</td>
+                  <td className="text-right text-gray-300">{item.totalTrades}</td>
+                  <td className={`text-right ${item.winRate >= 50 ? 'text-profit-400' : 'text-loss-400'}`}>
                     {item.winRate.toFixed(1)}%
                   </td>
-                  <td className={`py-3 px-4 text-sm text-right font-medium ${getPnLColor(item.totalPnL)}`}>
+                  <td className={`text-right font-medium ${item.totalPnL >= 0 ? 'text-profit-400' : 'text-loss-400'}`}>
                     {formatCurrency(item.totalPnL, activePortfolio.currency, settings.hideAmounts)}
                   </td>
                 </tr>
@@ -227,50 +231,42 @@ export default function AnalyticsPage() {
 
       {/* Tag Performance */}
       {tagPerformance.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Performance by Tag</CardTitle>
-          </CardHeader>
+        <Card padding={false}>
+          <div className="panel-header">
+            <span className="panel-title">Performance by Tag</span>
+            <span className="text-xs font-mono text-gray-500">{tagPerformance.length} tags</span>
+          </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="terminal-table">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Tag
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Trades
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Win Rate
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Total P&L
-                  </th>
+                <tr>
+                  <th>Tag</th>
+                  <th className="text-right">Trades</th>
+                  <th className="text-right">Win Rate</th>
+                  <th className="text-right">Total P&L</th>
                 </tr>
               </thead>
               <tbody>
                 {tagPerformance.map((item) => (
-                  <tr
-                    key={item.tag}
-                    className="border-b border-gray-100 dark:border-gray-800"
-                  >
-                    <td className="py-3 px-4">
+                  <tr key={item.tag}>
+                    <td>
                       <span
-                        className="inline-block px-3 py-1 rounded-full text-sm font-medium text-white"
-                        style={{ backgroundColor: item.color }}
+                        className="inline-flex items-center px-2 py-0.5 text-xs font-mono uppercase border"
+                        style={{
+                          backgroundColor: `${item.color}20`,
+                          borderColor: `${item.color}50`,
+                          color: item.color
+                        }}
                       >
                         {item.tag}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-sm text-right text-gray-900 dark:text-gray-100">
-                      {item.totalTrades}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-right text-gray-900 dark:text-gray-100">
+                    <td className="text-right text-gray-300">{item.totalTrades}</td>
+                    <td className={`text-right ${item.winRate >= 50 ? 'text-profit-400' : 'text-loss-400'}`}>
                       {item.winRate.toFixed(1)}%
                     </td>
-                    <td className={`py-3 px-4 text-sm text-right font-medium ${getPnLColor(item.totalPnL)}`}>
+                    <td className={`text-right font-medium ${item.totalPnL >= 0 ? 'text-profit-400' : 'text-loss-400'}`}>
                       {formatCurrency(item.totalPnL, activePortfolio.currency, settings.hideAmounts)}
                     </td>
                   </tr>

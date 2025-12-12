@@ -5,25 +5,35 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   padding?: boolean;
+  glow?: boolean;
+  title?: string;
 }
 
-export default function Card({ children, className, padding = true }: CardProps) {
+export default function Card({ children, className, padding = true, glow = false, title }: CardProps) {
   return (
     <div
       className={cn(
-        'bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700',
-        padding && 'p-6',
+        'bg-terminal-card border border-terminal-border',
+        glow && 'glow-border',
         className
       )}
     >
-      {children}
+      {title && (
+        <div className="panel-header">
+          <span className="panel-title">{title}</span>
+          <span className="text-xs font-mono text-gray-600">●</span>
+        </div>
+      )}
+      <div className={cn(padding && 'p-4')}>
+        {children}
+      </div>
     </div>
   );
 }
 
 export function CardHeader({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('border-b border-gray-200 dark:border-gray-700 pb-4 mb-4', className)}>
+    <div className={cn('border-b border-terminal-border pb-3 mb-3', className)}>
       {children}
     </div>
   );
@@ -31,7 +41,7 @@ export function CardHeader({ children, className }: { children: ReactNode; class
 
 export function CardTitle({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <h3 className={cn('text-lg font-semibold text-gray-900 dark:text-gray-100', className)}>
+    <h3 className={cn('text-sm font-semibold text-bloomberg-500 uppercase tracking-wider font-mono', className)}>
       {children}
     </h3>
   );

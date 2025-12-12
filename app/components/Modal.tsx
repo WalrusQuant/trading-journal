@@ -38,7 +38,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
@@ -46,28 +46,34 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           className={cn(
-            'relative w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl',
+            'relative w-full bg-terminal-card border border-terminal-border shadow-2xl animate-fadeIn',
             sizes[size]
           )}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           {title && (
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {title}
-              </h2>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-terminal-border bg-terminal-panel">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-gray-600">▸</span>
+                <h2 className="text-sm font-mono font-semibold text-bloomberg-500 uppercase tracking-wider">
+                  {title}
+                </h2>
+              </div>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="text-gray-500 hover:text-loss-400 transition-colors p-1"
               >
-                <X className="w-6 h-6" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           )}
 
           {/* Content */}
-          <div className="p-6">{children}</div>
+          <div className="p-4">{children}</div>
+
+          {/* Bottom glow line */}
+          <div className="h-px bg-gradient-to-r from-transparent via-bloomberg-500/30 to-transparent" />
         </div>
       </div>
     </div>
